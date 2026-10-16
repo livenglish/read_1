@@ -1,0 +1,233 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Читаю сам</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@500;700;800&display=swap">
+<style>
+/* Layout: five vowel rows, each a big phonetic badge followed by tappable word cards that wrap. */
+:root {
+  --bg: #f3f8fc;
+  --surface: #ffffff;
+  --fg: #16264a;
+  --muted: #5a6b8c;
+  --line: #d5e1ee;
+  --accent: #2f6fe4;
+  --accent-ink: #ffffff;
+
+  --a-bg: #dff0ff; --a-ink: #14508f; --a-edge: #9ccbf2;
+  --e-bg: #dff5d6; --e-ink: #2a6a14; --e-edge: #a4d98f;
+  --i-bg: #fff2b8; --i-ink: #7a5a00; --i-edge: #f0d35e;
+  --o-bg: #d3f1f2; --o-ink: #0c5f68; --o-edge: #86cdd2;
+  --u-bg: #ffe0ea; --u-ink: #9a2150; --u-edge: #f2a6c0;
+
+  --font-display: "Fredoka", "Trebuchet MS", "Segoe UI", sans-serif;
+  --font-body: "Nunito", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1a2e; --surface: #18263f; --fg: #eaf1ff; --muted: #9bb0d1; --line: #2b3d5e;
+    --accent: #6fa0ff; --accent-ink: #0f1a2e;
+    --a-bg: #1a3556; --a-ink: #bfe0ff; --a-edge: #2f5b8e;
+    --e-bg: #1f3a1a; --e-ink: #c9f0b8; --e-edge: #3d6d31;
+    --i-bg: #4a3d0a; --i-ink: #ffe98a; --i-edge: #7d6717;
+    --o-bg: #0f3d42; --o-ink: #b4ecf0; --o-edge: #20737b;
+    --u-bg: #4a1a2f; --u-ink: #ffc3d7; --u-edge: #87345a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1a2e; --surface: #18263f; --fg: #eaf1ff; --muted: #9bb0d1; --line: #2b3d5e;
+  --accent: #6fa0ff; --accent-ink: #0f1a2e;
+  --a-bg: #1a3556; --a-ink: #bfe0ff; --a-edge: #2f5b8e;
+  --e-bg: #1f3a1a; --e-ink: #c9f0b8; --e-edge: #3d6d31;
+  --i-bg: #4a3d0a; --i-ink: #ffe98a; --i-edge: #7d6717;
+  --o-bg: #0f3d42; --o-ink: #b4ecf0; --o-edge: #20737b;
+  --u-bg: #4a1a2f; --u-ink: #ffc3d7; --u-edge: #87345a;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  padding-block: 20px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 1040px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+
+header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 20px; }
+header h1 { font-family: var(--font-display); font-weight: 600; font-size: clamp(28px, 5vw, 40px); line-height: 1.1; margin: 0; text-wrap: balance; }
+header p { margin: 4px 0 0; color: var(--muted); font-weight: 700; }
+
+.tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+button { font-family: inherit; font-size: 15px; font-weight: 800; cursor: pointer; }
+.btn {
+  background: var(--surface); color: var(--fg); border: 2px solid var(--line);
+  border-radius: 999px; padding: 8px 16px; min-height: 40px;
+}
+.btn:hover { border-color: var(--accent); }
+.btn[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.progress { display: flex; align-items: center; gap: 12px; font-weight: 800; color: var(--muted); }
+.bar { flex: 1; height: 10px; background: var(--line); border-radius: 999px; overflow: hidden; }
+.bar i { display: block; height: 100%; width: 0; background: var(--accent); border-radius: 999px; transition: width .3s; }
+
+.row {
+  display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 16px; align-items: center;
+  background: var(--row-bg); border: 2px solid var(--row-edge); border-radius: 28px; padding: 16px;
+}
+.row[data-v="a"] { --row-bg: var(--a-bg); --row-ink: var(--a-ink); --row-edge: var(--a-edge); }
+.row[data-v="e"] { --row-bg: var(--e-bg); --row-ink: var(--e-ink); --row-edge: var(--e-edge); }
+.row[data-v="i"] { --row-bg: var(--i-bg); --row-ink: var(--i-ink); --row-edge: var(--i-edge); }
+.row[data-v="o"] { --row-bg: var(--o-bg); --row-ink: var(--o-ink); --row-edge: var(--o-edge); }
+.row[data-v="u"] { --row-bg: var(--u-bg); --row-ink: var(--u-ink); --row-edge: var(--u-edge); }
+
+.badge {
+  width: 96px; height: 96px; border-radius: 50%; background: var(--surface); color: var(--row-ink);
+  border: 4px solid var(--row-edge); display: grid; place-items: center; align-content: center;
+  font-family: var(--font-display); font-weight: 600; font-size: 44px; line-height: 1;
+}
+.badge small { font-family: var(--font-body); font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; opacity: .8; margin-top: 2px; }
+
+.words { display: flex; flex-wrap: wrap; gap: 10px; min-width: 0; }
+.word {
+  position: relative; background: var(--surface); color: var(--fg);
+  border: 3px solid var(--row-edge); border-radius: 20px; padding: 8px 20px 10px; min-width: 92px;
+  font-family: var(--font-display); font-weight: 500; font-size: clamp(26px, 4.6vw, 36px); line-height: 1.15;
+  transition: transform .12s, background .2s;
+}
+.word:hover { transform: translateY(-2px); }
+.word:active { transform: scale(.96); }
+.word.speaking { background: var(--row-ink); color: var(--surface); }
+.word.done::after {
+  content: "✓"; position: absolute; top: -9px; right: -7px; width: 24px; height: 24px; border-radius: 50%;
+  background: var(--row-ink); color: var(--surface); font-family: var(--font-body); font-size: 14px; font-weight: 800;
+  display: grid; place-items: center; line-height: 1;
+}
+
+.note { color: var(--muted); font-size: 14px; font-weight: 700; margin: 0; }
+.note[hidden] { display: none; }
+
+@media (max-width: 560px) {
+  .row { grid-template-columns: 1fr; justify-items: start; }
+  .badge { width: 72px; height: 72px; font-size: 34px; }
+}
+@media (prefers-reduced-motion: reduce) { .word, .bar i { transition: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Читаю сам</h1>
+      <p>Слова с закрытым слогом: нажми на слово, прочитай и послушай</p>
+    </div>
+    <div class="tools" role="group" aria-label="Настройки">
+      <button class="btn" id="shuffle" type="button">Перемешать</button>
+      <button class="btn" id="slow" type="button" aria-pressed="false">Медленно</button>
+      <button class="btn" id="reset" type="button">Начать заново</button>
+    </div>
+  </header>
+
+  <div class="progress"><span id="count">0 из 53</span><div class="bar"><i id="fill"></i></div></div>
+  <p class="note" id="nosound" hidden>В этом браузере нет голосового чтения. Слова можно читать без звука или вставить свои аудиофайлы.</p>
+
+  <main id="rows" class="wrap" style="gap:14px"></main>
+</div>
+
+<script>
+var DATA = [
+  { v: "a", sym: "/æ/", words: ["dad","bag","fan","ham","hat","van","map","sad","cat","bad","fat","rat","tap"] },
+  { v: "e", sym: "/e/", words: ["vet","pet","hen","bed","pen","red","leg","ten","net","jet"] },
+  { v: "i", sym: "/ɪ/", words: ["big","zip","kid","tin","six","wig","pig","lip","sit","fin","hip"] },
+  { v: "o", sym: "/ɒ/", words: ["mop","not","hot","dog","pot","frog","box","dot","fox","log"] },
+  { v: "u", sym: "/ʌ/", words: ["bug","cup","jug","pup","mud","sun","cut","fun","rug"] }
+];
+var TOTAL = 53, STORE = "closed-syllable-done-v1";
+var done = {}, slow = false, hideMode = false, voice = null, current = null;
+
+try { done = JSON.parse(localStorage.getItem(STORE) || "{}") || {}; } catch (e) { done = {}; }
+function save() { try { localStorage.setItem(STORE, JSON.stringify(done)); } catch (e) {} }
+
+var synth = window.speechSynthesis;
+function pickVoice() {
+  if (!synth) return;
+  var vs = synth.getVoices();
+  voice = vs.filter(function (v) { return /^en[-_]US/i.test(v.lang); })[0] ||
+          vs.filter(function (v) { return /^en/i.test(v.lang); })[0] || null;
+}
+if (synth) { pickVoice(); synth.onvoiceschanged = pickVoice; }
+else document.getElementById("nosound").hidden = false;
+
+function speak(word, el) {
+  if (!synth) return;
+  try {
+    synth.cancel();
+    var u = new SpeechSynthesisUtterance(word);
+    u.lang = "en-US"; if (voice) u.voice = voice;
+    u.rate = slow ? 0.5 : 0.8; u.pitch = 1.05;
+    if (current) current.classList.remove("speaking");
+    current = el; el.classList.add("speaking");
+    u.onend = u.onerror = function () { el.classList.remove("speaking"); };
+    synth.speak(u);
+  } catch (e) { el.classList.remove("speaking"); }
+}
+
+function shuffled(a) {
+  var b = a.slice();
+  for (var i = b.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = b[i]; b[i] = b[j]; b[j] = t; }
+  return b;
+}
+
+function render(order) {
+  var host = document.getElementById("rows");
+  host.innerHTML = "";
+  DATA.forEach(function (g) {
+    var list = order ? shuffled(g.words) : g.words;
+    var row = document.createElement("section");
+    row.className = "row"; row.dataset.v = g.v;
+    row.setAttribute("aria-label", "Гласный " + g.v);
+    var badge = document.createElement("div");
+    badge.className = "badge";
+    badge.innerHTML = "<span></span><small>" + g.v.toUpperCase() + g.v + "</small>";
+    badge.firstChild.textContent = g.sym;
+    var words = document.createElement("div"); words.className = "words";
+    list.forEach(function (w) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "word"; b.textContent = w; b.dataset.w = w;
+      if (done[w]) b.classList.add("done");
+      b.addEventListener("click", function () {
+        b.classList.add("revealed");
+        speak(w, b);
+        if (!done[w]) { done[w] = 1; b.classList.add("done"); save(); updateProgress(); }
+      });
+      words.appendChild(b);
+    });
+    row.appendChild(badge); row.appendChild(words); host.appendChild(row);
+  });
+  updateProgress();
+}
+
+function updateProgress() {
+  var n = Object.keys(done).length;
+  document.getElementById("count").textContent = n + " из " + TOTAL;
+  document.getElementById("fill").style.width = (n / TOTAL * 100) + "%";
+}
+
+document.getElementById("shuffle").addEventListener("click", function () { render(true); });
+document.getElementById("slow").addEventListener("click", function (e) {
+  slow = !slow; e.currentTarget.setAttribute("aria-pressed", String(slow));
+});
+document.getElementById("reset").addEventListener("click", function () {
+  done = {}; save(); render(false);
+});
+
+render(false);
+</script>
+
+</body></html>

@@ -194,8 +194,7 @@ function render(order) {
     row.setAttribute("aria-label", "Гласный " + g.v);
     var badge = document.createElement("div");
     badge.className = "badge";
-    badge.innerHTML = "<span></span><small>" + g.v.toUpperCase() + g.v + "</small>";
-    badge.firstChild.textContent = g.sym;
+    badge.textContent = g.sym;
     var words = document.createElement("div"); words.className = "words";
     list.forEach(function (w) {
       var b = document.createElement("button");
